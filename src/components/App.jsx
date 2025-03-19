@@ -20,6 +20,9 @@ export default function Home() {
   const [routeData, setRouteData] = useState(null)
   const [stops, setStops] = useState([])
   const [tripData, setTripData] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [isMapLoading, setIsMapLoading] = useState(false)
 
   useEffect(() => {
     const geoSuccess = async (position) => {
@@ -57,6 +60,9 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
+    setError('')
+    setIsMapLoading(true)
 
     if (!currentLocationCoords || !pickupLocation || !dropoffLocation) {
         alert('Please ensure current, pickup, and dropoff locations are set.')
@@ -79,7 +85,11 @@ export default function Home() {
       setStops(response.data.stops)
       setTripData(response.data)
     } catch (error) {
+      setError('Failed to create trip. Please try again.')
       console.error("Error fetching route:", error)
+    } finally {
+      setIsLoading(false)
+      setIsMapLoading(false)
     }
   }
 
@@ -156,13 +166,15 @@ export default function Home() {
                     </label>
                 </div>
                 <br />
-                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">Plan Trip</button>
+                <button type="submit" disabled={isLoading} className={`w-full p-3 text-white rounded-md ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}>
+                  {isLoading ? 'Planning Trip...' : "Plan Trip"}
+                </button>
             </form>
 
             {routeData && (
                 <div className="mt-8">
                     <h2 className="text-xl font-bold text-blue-600">Route Map</h2>
-                    <MapComponent routeData={routeData} stops={stops} initialCenter={initialCenter} />
+                    {isMapLoading ? <div className='text-l text-gray-800'>Loading map...</div> : <MapComponent routeData={routeData} stops={stops} initialCenter={initialCenter} />}
                 </div>
             )}
 
