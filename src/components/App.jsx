@@ -20,8 +20,6 @@ export default function Home() {
   const [routeData, setRouteData] = useState(null)
   const [stops, setStops] = useState([])
   const [tripData, setTripData] = useState(null)
-  // const [manualCurrentLocation, setManualCurrentLocation] = useState(null)  // New: Manual location entry
-  // const [isGeolocationFailed, setIsGeolocationFailed] = useState(false)
 
   useEffect(() => {
     const geoSuccess = async (position) => {
@@ -76,7 +74,7 @@ export default function Home() {
             current_cycle_used: currentCycleHours
         }
       // Adjust the URL based on your Django backend deployment
-      const response = await axios.post("http://localhost:8000/api/create_trip/", payload)
+      const response = await axios.post("https://trip-planner-api-rc1h.onrender.com/api/create_trip/", payload)
       setRouteData(response.data.route_geometry)
       setStops(response.data.stops)
       setTripData(response.data)
@@ -96,7 +94,7 @@ export default function Home() {
         if (!tripData) return
         try {
           const response = await axios.get(
-            `http://localhost:8000/api/logsheet/?trip_id=${tripData.id}`,
+            `https://trip-planner-api-rc1h.onrender.com/api/logsheet/?trip_id=${tripData.id}`,
             { responseType: 'blob' }
           )
           const blob = new Blob([response.data], { type: 'application/pdf' })
